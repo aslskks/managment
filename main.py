@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, redirect, url_for
 import json
 import os
 import requests
@@ -10,41 +10,39 @@ EXTERNAL_REMOVE_URL = "https://example-45gu.onrender.com/remove-request"
 # Load JSON safely
 def load_json():
     if not os.path.exists(JSON_FILE):
-        return []
+        return {"requests": [], "ips": []}
     with open(JSON_FILE, "r", encoding="utf-8") as f:
         try:
             data = json.load(f)
-            if not isinstance(data, list):
-                data = []
+            if not isinstance(data, dict):
+                data = {"requests": [], "ips": []}
         except json.JSONDecodeError:
-            data = []
+            data = {"requests": [], "ips": []}
     return data
 
 # -----------------------------
 # Show requests page
 # -----------------------------
-@app.get('/')
+@app.route('/')
 def index():
-    data = load_json()
-    headers = data[0].keys() if data and isinstance(data[0], dict) else []
-
-    # Number of users is just the number of requests
-    user_count = len(data)
-
-    return render_template("requests.html", headers=headers, data=data, user_count=user_count)
-
+    all_data = load_json()
+    requests_data = all_data.get("requests", [])
+    ips_data = all_data.get("ips", [])
+    user_count = len(ips_data)
+    return render_template('requests.html', data=requests_data, user_count=user_count)
 
 # -----------------------------
 # Remove a specific request
 # -----------------------------
-@app.post("/remove-request/<int:index>")
+@app.route("/remove-request/<int:index>", methods=["POST"])
 def remove_request(index):
-    data = load_json()
+    all_data = load_json()
+    requests_list = all_data.get("requests", [])
 
-    if index < 0 or index >= len(data):
+    if index < 0 or index >= len(requests_list):
         return jsonify({"success": False, "error": "Invalid index"})
 
-    row = data[index]
+    row = requests_list[index]
 
     # Send to external server
     try:
@@ -55,12 +53,13 @@ def remove_request(index):
         return jsonify({"success": False, "error": f"Failed to contact external server: {str(e)}"})
 
     # Remove row locally
-    data.pop(index)
+    requests_list.pop(index)
+    all_data['requests'] = requests_list
     with open(JSON_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
+        json.dump(all_data, f, indent=4)
 
-    return jsonify({"success": True, "removed": row})
-
+    # Redirect back to main page instead of returning JSON
+    return redirect(url_for('index'))
 
 # -----------------------------
 # Migrate requests / IPs
@@ -75,7 +74,6 @@ def migrate():
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
-
 
 # -----------------------------
 # Run the app
