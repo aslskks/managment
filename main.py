@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)
 JSON_FILE = "data.json"
 EXTERNAL_REMOVE_URL = "https://games-8upn.onrender.com/remove-request"
-@app.post("/migrate")
+@app.post("/migrate-requests")
 def migrate():
     data = request.json
     try:
@@ -56,4 +56,4 @@ def remove_request(index):
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
-app.run(debug=True, port=5000)
+app.run(debug=True, port=10000)
