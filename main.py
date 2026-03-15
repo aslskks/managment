@@ -7,41 +7,46 @@ app = Flask(__name__)
 JSON_FILE = "data.json"
 EXTERNAL_REMOVE_URL = "https://example-45gu.onrender.com/remove-request"
 
+# Load JSON safely
+def load_json():
+    if not os.path.exists(JSON_FILE):
+        return []
+    with open(JSON_FILE, "r", encoding="utf-8") as f:
+        try:
+            data = json.load(f)
+            if not isinstance(data, list):
+                data = []
+        except json.JSONDecodeError:
+            data = []
+    return data
+
 # -----------------------------
-# Show all user requests
+# Show requests page
 # -----------------------------
 @app.get('/')
 def index():
-    if not os.path.exists(JSON_FILE):
-        data = []
-    else:
-        with open(JSON_FILE, "r", encoding="utf-8") as f:
-            try:
-                data = json.load(f)
-            except json.JSONDecodeError:
-                data = []
+    data = load_json()
+    headers = data[0].keys() if data and isinstance(data[0], dict) else []
 
-    headers = data[0].keys() if data else []
-    return render_template("requests.html", headers=headers, data=data)
+    # Number of users is just the number of requests
+    user_count = len(data)
+
+    return render_template("requests.html", headers=headers, data=data, user_count=user_count)
 
 
 # -----------------------------
-# Remove a specific user request
+# Remove a specific request
 # -----------------------------
 @app.post("/remove-request/<int:index>")
 def remove_request(index):
-    if not os.path.exists(JSON_FILE):
-        return jsonify({"success": False, "error": "File not found"})
-
-    with open(JSON_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    data = load_json()
 
     if index < 0 or index >= len(data):
         return jsonify({"success": False, "error": "Invalid index"})
 
     row = data[index]
 
-    # Send row to external server
+    # Send to external server
     try:
         response = requests.post(EXTERNAL_REMOVE_URL, json=row)
         if response.status_code != 200:
