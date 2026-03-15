@@ -69,6 +69,7 @@ def remove_request(index):
 @app.post("/migrate-ip")
 def migrate():
     data = request.json
+    print(data)
     try:
         with open(JSON_FILE, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4)
@@ -77,9 +78,3 @@ def migrate():
     except Exception as e:
         print("migrate error: " + str(e))
         return jsonify({"success": False, "error": str(e)})
-
-# -----------------------------
-# Run the app
-# -----------------------------
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=10000)
