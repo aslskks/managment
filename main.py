@@ -7,7 +7,9 @@ app = Flask(__name__)
 JSON_FILE = "data.json"
 EXTERNAL_REMOVE_URL = "https://example-45gu.onrender.com/remove-request"
 
-# Show users
+# -----------------------------
+# Show all user requests
+# -----------------------------
 @app.get('/')
 def index():
     if not os.path.exists(JSON_FILE):
@@ -22,7 +24,10 @@ def index():
     headers = data[0].keys() if data else []
     return render_template("requests.html", headers=headers, data=data)
 
-# Remove a specific user
+
+# -----------------------------
+# Remove a specific user request
+# -----------------------------
 @app.post("/remove-request/<int:index>")
 def remove_request(index):
     if not os.path.exists(JSON_FILE):
@@ -36,19 +41,25 @@ def remove_request(index):
 
     row = data[index]
 
-    # Send to external server
-    response = requests.post(EXTERNAL_REMOVE_URL, json=row)
-    if response.status_code != 200:
-        return jsonify({"success": False, "error": f"External server returned {response.status_code}"})
+    # Send row to external server
+    try:
+        response = requests.post(EXTERNAL_REMOVE_URL, json=row)
+        if response.status_code != 200:
+            return jsonify({"success": False, "error": f"External server returned {response.status_code}"})
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Failed to contact external server: {str(e)}"})
 
-    # Remove locally
+    # Remove row locally
     data.pop(index)
     with open(JSON_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
     return jsonify({"success": True, "removed": row})
 
-# Save new users or IPs
+
+# -----------------------------
+# Migrate requests / IPs
+# -----------------------------
 @app.post("/migrate-requests")
 @app.post("/migrate-ip")
 def migrate():
@@ -60,5 +71,9 @@ def migrate():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
+
+# -----------------------------
+# Run the app
+# -----------------------------
 if __name__ == "__main__":
-    app.run(debug=True, port=10000, host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0", port=10000)

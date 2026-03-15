@@ -17,10 +17,26 @@
             padding: 0;
         }
 
-        h2 {
-            text-align: center;
-            margin: 30px 0;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 1000px;
+            margin: 30px auto 10px;
+        }
+
+        header h2 {
+            margin: 0;
             color: #333;
+        }
+
+        header .user-count {
+            font-size: 16px;
+            background: #4caf50;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
         }
 
         table {
@@ -28,7 +44,7 @@
             border-spacing: 0;
             width: 90%;
             max-width: 1000px;
-            margin: 20px auto;
+            margin: 0 auto 50px;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
@@ -77,7 +93,10 @@
     </style>
 </head>
 <body>
-    <h2>Users Who Entered</h2>
+    <header>
+        <h2>User Requests</h2>
+        <div class="user-count">Total users: {{ data|length }}</div>
+    </header>
 
     {% if data %}
     <table>
@@ -116,6 +135,11 @@
                 if(data.success) {
                     const row = document.getElementById(`row-${index}`);
                     row.remove();
+
+                    // Update user count
+                    const countDiv = document.querySelector('.user-count');
+                    let count = parseInt(countDiv.textContent.replace(/\D/g,''));
+                    countDiv.textContent = `Total users: ${count - 1}`;
                 } else {
                     alert('Error: ' + data.error);
                 }
