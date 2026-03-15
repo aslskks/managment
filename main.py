@@ -5,7 +5,7 @@ import requests
 
 app = Flask(__name__)
 JSON_FILE = "data.json"
-EXTERNAL_REMOVE_URL = "https://games-8upn.onrender.com/remove-request"
+EXTERNAL_REMOVE_URL = "https://example-45gu.onrender.com/remove-request"
 
 # Show users
 @app.get('/')
