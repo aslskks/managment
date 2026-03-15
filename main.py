@@ -18,7 +18,6 @@ def load_json():
                 data = {"requests": [], "ips": []}
         except json.JSONDecodeError:
             data = {"requests": [], "ips": []}
-    print(data)
     return data
 
 # -----------------------------
@@ -69,12 +68,9 @@ def remove_request(index):
 @app.post("/migrate-ip")
 def migrate():
     data = request.json
-    print(data)
     try:
         with open(JSON_FILE, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4)
-        print("migrate success")
         return jsonify({"success": True})
     except Exception as e:
-        print("migrate error: " + str(e))
         return jsonify({"success": False, "error": str(e)})
