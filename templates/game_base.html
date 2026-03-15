@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="//www.gstatic.com/classroom/ic_product_classroom_32.png" sizes="32x32"><link rel="apple-touch-icon-precomposed" href="//www.gstatic.com/classroom/ic_product_classroom_32.png" sizes="32x32"><link rel="msapplication-square32x32logo" href="//www.gstatic.com/classroom/ic_product_classroom_32.png" sizes="32x32"><link rel="icon" href="//www.gstatic.com/classroom/ic_product_classroom_48.png" sizes="48x48"><link rel="apple-touch-icon-precomposed" href="//www.gstatic.com/classroom/ic_product_classroom_48.png" sizes="48x48"><link rel="msapplication-square48x48logo" href="//www.gstatic.com/classroom/ic_product_classroom_48.png" sizes="48x48"><link rel="icon" href="//www.gstatic.com/classroom/ic_product_classroom_96.png" sizes="96x96"><link rel="apple-touch-icon-precomposed" href="//www.gstatic.com/classroom/ic_product_classroom_96.png" sizes="96x96"><link rel="msapplication-square96x96logo" href="//www.gstatic.com/classroom/ic_product_classroom_96.png" sizes="96x96"><link rel="icon" href="//www.gstatic.com/classroom/ic_product_classroom_144.png" sizes="144x144"><link rel="apple-touch-icon-precomposed" href="//www.gstatic.com/classroom/ic_product_classroom_144.png" sizes="144x144"><link rel="msapplication-square144x144logo" href="//www.gstatic.com/classroom/ic_product_classroom_144.png" sizes="144x144">
+    <title>{% block title %}Classroom{% endblock %}</title>
+    <style>
+        /* Full-page white overlay */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: black;
+            user-select: none;
+        }
+
+        body.locked {
+            overflow: hidden; /* prevent scrolling before unlock */
+        }
+    </style>
+</head>
+<body class="locked">
+    <div id="overlay"></div>
+
+    {% block content %}{% endblock %}
+
+    <script>const combination = {ctrl: true, alt: true, key: 's'};
+
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey === combination.ctrl &&
+        e.altKey === combination.alt &&
+        e.key.toLowerCase() === combination.key) {
+        const overlay = document.getElementById('overlay');
+        if (overlay) overlay.style.display = 'none';
+        document.body.classList.remove('locked');
+    }
+});
+</script>
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key.toLowerCase() === "m" && e.shiftKey) {
+        window.location.href = "https://classroom.google.com"
+    }
+});
+</script>
+</body>
+</html>
