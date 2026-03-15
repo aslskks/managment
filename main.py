@@ -56,4 +56,4 @@ def remove_request(index):
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
-app.run(debug=True, port=10000)
+app.run(debug=True, port=10000, host="0.0.0.0")
